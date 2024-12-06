@@ -1,0 +1,121 @@
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local targetPlayer = Players.LocalPlayer
+local runningRodSwitch = false
+local autoFailReelEnabled = false
+
+local Window = Rayfield:CreateWindow({
+    Name = "Rotek dupe",
+    Icon = 0, 
+    LoadingTitle = "IDK??????????",
+    LoadingSubtitle = "by yung",
+    Theme = "Green", 
+    DisableRayfieldPrompts = false,
+    DisableBuildWarnings = false,
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = nil,
+        FileName = "yung"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "noinvitelink",
+        RememberJoins = true
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Untitled",
+        Subtitle = "Key System",
+        Note = "No method of obtaining the key is provided",
+        FileName = "Key",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"Hello"}
+    }
+})
+
+local MainTab = Window:CreateTab("🎣fishy", nil)
+local Section = MainTab:CreateSection("")
+
+-- Function to toggle rod switching
+local function toggleRodSwitching()
+    runningRodSwitch = not runningRodSwitch
+
+    if runningRodSwitch then
+        print("Started rod switching.")
+        task.spawn(function()
+            while runningRodSwitch do
+                ReplicatedStorage.events.equiprod:FireServer("Rod Of The Depths")
+                ReplicatedStorage.events.equiprod:FireServer("Rod Of The Eternal King")
+                task.wait(0.03)
+            end
+        end)
+    else
+        print("Stopped rod switching.")
+    end
+end
+
+-- Button to trigger rod switching
+local RodSwitchToggle = MainTab:CreateToggle({
+    Name = "dupe royal escort",
+    Callback = function()
+        toggleRodSwitching()
+    end,
+})
+
+-- Optionally bind the functionality to a key (e.g., Q key)
+UserInputService.InputBegan:Connect(function(input, isProcessed)
+    if not isProcessed then
+        if input.KeyCode == Enum.KeyCode.Q then
+            toggleRodSwitching()
+        end
+    end
+end)
+
+-- Auto Fail Reel Functionality
+local function startAutoFailReel()
+    autoFailReelEnabled = true
+    print("Auto Fail Reel Enabled")
+
+    task.spawn(function()
+        while autoFailReelEnabled do
+            local reel = PlayerGui:FindFirstChild("reel")
+            if not reel then
+                task.wait(0.1)
+                continue
+            end
+
+            local bar = reel:FindFirstChild("bar")
+            local playerbar = bar and bar:FindFirstChild("playerbar")
+            if playerbar then
+                -- Instead of adjusting the player bar, send a fail signal directly
+                ReplicatedStorage:WaitForChild("events"):WaitForChild("reelfinished"):FireServer(0, true) -- Fail reel
+            end
+
+            task.wait(0.5) -- Add a slight delay to prevent spamming
+        end
+    end)
+end
+
+
+local function stopAutoFailReel()
+    autoFailReelEnabled = false
+    print("Auto Fail Reel Disabled")
+end
+
+-- Toggle for Auto Fail Reel
+local AutoFailReelToggle = MainTab:CreateToggle({
+    Name = "Auto Fail Reel",
+    Callback = function()
+        if autoFailReelEnabled then
+            stopAutoFailReel()
+        else
+            startAutoFailReel()
+        end
+    end,
+})
